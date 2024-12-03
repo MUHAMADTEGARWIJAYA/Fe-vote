@@ -1,55 +1,96 @@
+import axios from "axios";
+
+// Membuat instance axios dengan konfigurasi dasar
+const api = axios.create({
+  baseURL: "https://be-vote-beta.vercel.app", // Ganti dengan URL backend yang sesuai
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Menambahkan token yang disimpan di localStorage ke header Authorization
+api.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+
+// Fungsi untuk melakukan login dan menyimpan token
 export const loginUser = async (nim) => {
   try {
-    const response = await fetch("https://be-vote-beta.vercel.app/api/v1/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ nim }), // Kirim NIM sebagai body JSON
-    });
+    const response = await api.post("/api/v1/auth/login", { nim });
 
-    if (!response.ok) {
-      throw new Error("Login failed. Check your NIM.");
+    // Jika login berhasil dan token ada, simpan token ke localStorage
+    if (response.data.token) {
+      localStorage.setItem("token", response.data.token);
+      // Perbarui header Authorization
+      api.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
     }
 
-    const data = await response.json();
-
-    // Pastikan token disertakan dalam response dan simpan di localStorage
-    if (data.token) {
-      localStorage.setItem("token", data.token); // Menyimpan token di localStorage
-    }
-
-    return data;
+    return response.data;
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Login failed:", error.message);
     throw error;
   }
 };
 
-  
-export const submitVote = async (candidateId, token) => {
+// Fungsi untuk melakukan vote dengan menggunakan token yang ada
+export const submitVote = async (candidateId) => {
   try {
-    const response = await fetch("https://be-vote-beta.vercel.app/api/v1/auth/vote/vote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Kirim token dalam header Authorization
-      },
-      body: JSON.stringify({ candidateId }), // Kirim candidateId untuk memilih kandidat
-    });
+    const response = await api.post("/api/v1/auth/vote/vote", { candidateId });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      const errorMessage = errorResponse.message || "Vote gagal. Pastikan Anda belum memberikan suara.";
-      throw new Error(errorMessage);
+    if (response.status === 200) {
+      return response.data;
     }
 
-    const data = await response.json();
-    return data;
+    throw new Error("Vote gagal.");
   } catch (error) {
     console.error("Error during vote:", error.message);
-    throw error; // Mengembalikan error untuk ditangani lebih lanjut
+    if (error.response?.status === 403) {
+      // Jika token expired atau invalid, coba refresh token
+      await refreshToken();
+      return submitVote(candidateId); // Coba ulangi permintaan vote setelah token diperbarui
+    }
+    throw error;
   }
 };
 
-  
+// Fungsi untuk memperbarui token (refresh token)
+export const refreshToken = async () => {
+  try {
+    const response = await api.post("/api/v1/auth/refresh-token", {}, { withCredentials: true });
+    const newAccessToken = response.data.token;
+
+    // Simpan token baru di localStorage dan perbarui header Authorization
+    localStorage.setItem("token", newAccessToken);
+    api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+
+    return newAccessToken;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    // Redirect ke halaman login jika refresh token gagal
+    window.location.href = "/login";
+    throw error;
+  }
+};
+
+// Menangani token expired atau error lainnya
+api.interceptors.response.use(
+  (response) => response, // Jika response sukses, lanjutkan
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Jika token expired (misalnya status 403), coba refresh token
+    if (error.response?.status === 403 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const newAccessToken = await refreshToken(); // Dapatkan token baru
+        // Perbarui permintaan dengan token baru dan ulangi
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return api(originalRequest); // Ulangi permintaan yang gagal
+      } catch (refreshError) {
+        return Promise.reject(refreshError); // Gagal refresh token
+      }
+    }
+
+    return Promise.reject(error); // Untuk error lainnya, tolak promise
+  }
+);
+
+export default api;
