@@ -33,7 +33,7 @@ export const loginUser = async (nim) => {
 // Fungsi untuk melakukan vote dengan menggunakan token yang ada
 export const submitVote = async (candidate) => {
   try {
-    const response = await api.post("/api/v1/auth/vote/vote", { candidate });
+    const response = await api.post("/api/v1/vote", { candidate });
 
     if (response.status === 200) {
       return response.data;
