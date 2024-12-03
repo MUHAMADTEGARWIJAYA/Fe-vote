@@ -39,8 +39,13 @@ function VotePage() {
 
   const handleVote = async () => {
     const token = localStorage.getItem("token");
-    const nim = "061020202"; // Atau ambil nim dari data pengguna yang sudah login
-    
+    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage (atau sumber lain)
+  
+    if (!nim) {
+      setError("NIM tidak ditemukan. Silakan login ulang.");
+      return;
+    }
+  
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
@@ -53,7 +58,7 @@ function VotePage() {
   
     try {
       const response = await submitVote(
-        { nim, candidate },  // Kirimkan 'nim' dan 'candidate'
+        { nim, candidate }, // Kirimkan 'nim' dan 'candidate'
         {
           headers: {
             Authorization: `Bearer ${token}`,
