@@ -13,7 +13,7 @@ function VotePage() {
     {
       id: "Candidate 1",
       name: "Bayu Widyadi Nugroho",
-      photo: "../assets/images/candidat1.jpeg", // Pastikan path ke gambar benar
+      photo: "candidat1.jpeg", // Pastikan path ke gambar benar
       vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
       mission:
         "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
@@ -21,7 +21,7 @@ function VotePage() {
     {
       id: "Candidate 2",
       name: "Maulana Ikhsan Afrizalu",
-      photo: "../assets/images/candidat2.jpeg", // Pastikan path ke gambar benar
+      photo: "candidat2.jpeg", // Pastikan path ke gambar benar
       vision:
         "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi untuk membangun kemajuan bersama, serta menciptakan lingkungan akademik yang adil dan berorientasi pada kebersamaan.",
       mission:
@@ -54,8 +54,8 @@ function VotePage() {
     }
   
     // Debugging: log body dan header sebelum request
-    console.log("Body:", { nim, candidate });
-    console.log("Header:", { Authorization: `Bearer ${token}` });
+    // console.log("Body:", { nim, candidate });
+    // console.log("Header:", { Authorization: `Bearer ${token}` });
   
     setLoading(true);
   
@@ -83,7 +83,24 @@ function VotePage() {
       setLoading(false);
     }
   };
-  
+  const [images, setImages] = useState({});
+
+  useEffect(() => {
+    // Menggunakan import.meta.glob untuk memuat semua gambar dalam folder assets/imgs
+    const loadImages = async () => {
+      const importedImages = import.meta.glob('../assets/images/*.{png,jpg,jpeg}');
+      const imageEntries = await Promise.all(
+        Object.entries(importedImages).map(async ([path, importFunc]) => {
+          const module = await importFunc();
+          const fileName = path.split('/').pop(); // Dapatkan nama file saja
+          return [fileName, module.default];
+        })
+      );
+      setImages(Object.fromEntries(imageEntries));
+    };
+
+    loadImages();
+  }, []); 
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 pb-52">
@@ -104,7 +121,7 @@ function VotePage() {
             <h1 className="text-2xl font-bold text-white mb-4">{`Candidate ${index + 1}`}</h1>
 
             <img
-              src={c.photo}
+              src={images[c.photo]}
               alt={c.name}
               className="w-70 h-70 rounded-full mb-4 border-4 border-white shadow-lg"
             />
