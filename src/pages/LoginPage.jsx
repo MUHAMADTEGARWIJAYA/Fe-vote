@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
-import { loginUser } from "../api";
 
 // Import gambar dari folder internal
 import backgroundImage from "../assets/images/background.jpg";
@@ -20,11 +19,30 @@ function LoginPage() {
         return;
       }
 
-      const response = await loginUser(nim);
+      // Kirim permintaan login ke backend
+      const response = await fetch("http://localhost:3000/api/v1/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nim }),
+      });
 
-      if (response.token) {
-        localStorage.setItem("token", response.token);
+      // Tangani respons
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || "Login gagal. Silakan coba lagi.");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.token) {
+        // Simpan token dan NIM di localStorage
+        localStorage.setItem("token", data.token);
         localStorage.setItem("nim", nim);
+
+        // Redirect ke halaman vote
         navigate("/vote");
       } else {
         setError("Login gagal. Token tidak diterima.");
