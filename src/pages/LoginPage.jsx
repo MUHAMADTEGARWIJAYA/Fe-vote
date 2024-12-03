@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
+import axios from "axios";
 
 // Import gambar dari folder internal
 import backgroundImage from "../assets/images/background.jpg";
@@ -19,23 +20,18 @@ function LoginPage() {
         return;
       }
 
-      // Kirim permintaan login ke backend
-      const response = await fetch("https://be-vote-beta-vercel.app/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ nim }),
-      });
+      // Kirim permintaan login ke backend menggunakan Axios
+      const response = await axios.post(
+        "https://be-vote-beta-vercel.app/api/v1/auth/login",
+        { nim },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // Tangani respons
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "Login gagal. Silakan coba lagi.");
-        return;
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       if (data.token) {
         // Simpan token dan NIM di localStorage
@@ -48,7 +44,12 @@ function LoginPage() {
         setError("Login gagal. Token tidak diterima.");
       }
     } catch (err) {
-      setError("Terjadi kesalahan: " + err.message);
+      // Tangani error dari Axios
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || "Login gagal. Silakan coba lagi.");
+      } else {
+        setError("Terjadi kesalahan: " + err.message);
+      }
     }
   };
 
