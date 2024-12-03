@@ -39,39 +39,46 @@ function VotePage() {
 
   const handleVote = async () => {
     const token = localStorage.getItem("token");
-    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage (atau sumber lain)
+    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage (atau dari sumber lain, seperti context atau state)
   
+    // Validasi jika NIM tidak ditemukan
     if (!nim) {
       setError("NIM tidak ditemukan. Silakan login ulang.");
       return;
     }
   
+    // Validasi jika kandidat belum dipilih
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
   
+    // Debugging: log body dan header sebelum request
     console.log("Body:", { nim, candidate });
     console.log("Header:", { Authorization: `Bearer ${token}` });
   
     setLoading(true);
   
     try {
+      // Kirim request vote ke backend
       const response = await submitVote(
-        { nim, candidate }, // Kirimkan 'nim' dan 'candidate'
+        { nim, candidate }, // Kirimkan nim dan candidate dalam body request
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Sertakan token untuk otorisasi
           },
         }
       );
   
+      // Tampilkan pesan sukses jika voting berhasil
       setSuccessMessage(response.message || "Voting berhasil!");
-      setError("");
+      setError(""); // Reset error message
     } catch (error) {
+      // Tampilkan pesan error jika ada masalah
       setError(error.message || "Terjadi kesalahan saat mengirim suara.");
-      setSuccessMessage("");
+      setSuccessMessage(""); // Reset success message
     } finally {
+      // Set loading ke false setelah request selesai
       setLoading(false);
     }
   };
