@@ -12,20 +12,20 @@ function VotePage() {
   const candidates = [
     {
       id: "Candidate 1",
-      name: "Bayu",
-      photo: "/assets/candidat1.jpeg", // Pastikan path ke gambar benar
+      name: "Bayu Widyadi Nugroho",
+      photo: "../assets/images/candidat1.jpeg", // Pastikan path ke gambar benar
       vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
       mission:
         "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
     },
     {
       id: "Candidate 2",
-      name: "Jane Smith",
-      photo: "/assets/candidat2.jpeg", // Pastikan path ke gambar benar
+      name: "Maulana Ikhsan Afrizalu",
+      photo: "../assets/images/candidat2.jpeg", // Pastikan path ke gambar benar
       vision:
-        "Mendorong inovasi dan kreativitas mahasiswa melalui berbagai kegiatan yang berorientasi pada pengembangan keterampilan serta memperkuat komunitas untuk saling mendukung.",
+        "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi untuk membangun kemajuan bersama, serta menciptakan lingkungan akademik yang adil dan berorientasi pada kebersamaan.",
       mission:
-        "1. Menyediakan lebih banyak program pelatihan dalam bidang teknologi dan kewirausahaan. 2. Memperkuat komunitas mahasiswa dengan mengadakan lebih banyak acara yang melibatkan mahasiswa dari berbagai jurusan.",
+        "1. Mengutamakan Kolektivisme dalam Kepemimpinan : Mengelola himpunan secara demokratis dengan melibatkan seluruh anggota dalam pengambilan keputusan, sehingga organisasi menjadi milik bersama, bukan segelintir orang orang penting saja. 2. Mendorong Kemandirian Akademik dan Organisasi : Membangun himpunan yang mandiri secara intelektual dan organisatoris, sehingga tidak bergantung pada kekuatan eksternal yang dapat membatasi kebebasan berpikir dan bertindak."
     },
   ];
 
