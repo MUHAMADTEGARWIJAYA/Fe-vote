@@ -19,3 +19,25 @@ export const loginUser = async (nim) => {
     }
   };
   
+  export const submitVote = async (candidateId, token) => {
+    try {
+      const response = await fetch("https://be-vote-beta.vercel.app/api/v1/vote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Kirim token dalam header Authorization
+        },
+        body: JSON.stringify({ candidateId }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Vote gagal. Pastikan Anda belum memberikan suara.");
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error("Error during vote:", error.message);
+      throw error;
+    }
+  };
+  

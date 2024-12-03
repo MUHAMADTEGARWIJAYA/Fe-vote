@@ -1,15 +1,18 @@
-import { useState, useEffect } from "react";
-
+import { useState} from "react";
+import { submitVote } from "../api"; // Pastikan untuk mengimpor fungsi API yang benar
 
 function VotePage() {
-  const [candidate, setCandidate] = useState("");
-  const [error, setError] = useState("");
+  const [candidate, setCandidate] = useState(""); // Kandidat yang dipilih
+  const [error, setError] = useState(""); // Pesan error jika ada masalah
+  const [successMessage, setSuccessMessage] = useState(""); // Pesan sukses setelah vote
+  const [loading, setLoading] = useState(false); // Status loading saat vote dikirim
 
+  // Daftar kandidat yang tersedia
   const candidates = [
     {
       id: "Candidate 1",
       name: "Bayu",
-      photo: "candidat1.jpeg", // Ganti dengan URL foto kandidat
+      photo: "candidat1.jpeg", // Pastikan path sesuai dengan lokasi gambar
       vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
       mission:
         "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
@@ -17,7 +20,7 @@ function VotePage() {
     {
       id: "Candidate 2",
       name: "Jane Smith",
-      photo: "candidat2.jpeg", // Ganti dengan URL foto kandidat
+      photo: "candidat2.jpeg", // Pastikan path sesuai dengan lokasi gambar
       vision:
         "Mendorong inovasi dan kreativitas mahasiswa melalui berbagai kegiatan yang berorientasi pada pengembangan keterampilan serta memperkuat komunitas untuk saling mendukung.",
       mission:
@@ -25,65 +28,43 @@ function VotePage() {
     },
   ];
 
+  // Fungsi untuk menangani pengiriman suara
   const handleVote = async () => {
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
 
-    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage
-    const token = localStorage.getItem("token"); // Ambil token dari localStorage
+    setLoading(true); // Set loading menjadi true saat proses pengiriman vote dimulai
+    const token = localStorage.getItem("token"); // Mengambil token dari localStorage
 
-    if (!nim) {
-      setError("NIM tidak ditemukan. Silakan login kembali.");
+    if (!token) {
+      setError("Anda belum login. Silakan login terlebih dahulu.");
+      setLoading(false); // Set loading false jika token tidak ada
       return;
     }
 
     try {
-      const response = await fetch("https://be-vote-beta-vercel.app/api/v1/auth/vote", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ nim, candidate }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Gagal mengirim suara.");
-      }
-
-      setError(""); // Hapus error jika berhasil
-      alert("Voting berhasil!");
+      // Mengirim vote ke backend
+      const response = await submitVote(candidate, token);
+      setSuccessMessage(response.message || "Voting berhasil!");
+      setError(""); // Reset pesan error jika berhasil
     } catch (error) {
-      setError(error.message);
+      setError(error.message || "Terjadi kesalahan saat mengirim suara.");
+      setSuccessMessage(""); // Reset pesan sukses jika gagal
+    } finally {
+      setLoading(false); // Set loading false setelah proses selesai
     }
   };
-
-  const [images, setImages] = useState({});
-
-  useEffect(() => {
-    const loadImages = async () => {
-      const importedImages = import.meta.glob('../assets/images/*.{png,jpg,jpeg,svg}');
-      const imageEntries = await Promise.all(
-        Object.entries(importedImages).map(async ([path, importFunc]) => {
-          const module = await importFunc();
-          const fileName = path.replace('../assets/images/', ''); // Sesuaikan nama file
-          return [fileName, module.default];
-        })
-      );
-      setImages(Object.fromEntries(imageEntries));
-    };
-
-    loadImages();
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 pb-52">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white">Vote for Your Candidate</h1>
-        <p className="text-white pt-10">Click <span className="text-green-500">Choose Candidate</span> lalu click <span className="text-green-500">Submit</span> yaaaaaaaaa heheh</p>
+        <p className="text-white pt-10">
+          Klik <span className="text-green-500">Pilih Kandidat</span> lalu klik{" "}
+          <span className="text-green-500">Kirim Vote</span>.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
@@ -92,11 +73,10 @@ function VotePage() {
             key={c.id}
             className="p-4 w-96 border bg-violet-600 rounded-lg shadow-md flex flex-col items-center border-gray-300"
           >
-            {/* Tulisan Candidate */}
             <h1 className="text-2xl font-bold text-white mb-4">{`Candidate ${index + 1}`}</h1>
 
             <img
-              src={images[c.photo]}
+              src={c.photo} // Pastikan path URL foto sudah sesuai
               alt={c.name}
               className="w-70 h-70 rounded-full mb-4 border-4 border-white shadow-lg"
             />
@@ -128,18 +108,19 @@ function VotePage() {
       <button
         onClick={handleVote}
         className="px-8 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition-colors duration-300 mb-4"
+        disabled={loading} // Menonaktifkan tombol saat sedang loading
       >
-        Submit Vote
+        {loading ? "Sending..." : "Kirim Vote"}
       </button>
 
-      {/* Tombol ke Halaman Admin */}
       <button
         onClick={() => (window.location.href = "/admin")} // Ganti dengan path yang sesuai
         className="px-8 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
       >
-        LIHAT HASIL VOTING
+        Lihat Hasil Voting
       </button>
 
+      {successMessage && <div className="mt-4 text-green-600">{successMessage}</div>}
       {error && <div className="mt-4 text-red-600">{error}</div>}
     </div>
   );
