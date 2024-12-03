@@ -31,9 +31,9 @@ export const loginUser = async (nim) => {
 };
 
 // Fungsi untuk melakukan vote dengan menggunakan token yang ada
-export const submitVote = async (candidateId) => {
+export const submitVote = async (candidate) => {
   try {
-    const response = await api.post("/api/v1/auth/vote/vote", { candidateId });
+    const response = await api.post("/api/v1/auth/vote/vote", { candidate });
 
     if (response.status === 200) {
       return response.data;
@@ -45,7 +45,7 @@ export const submitVote = async (candidateId) => {
     if (error.response?.status === 403) {
       // Jika token expired atau invalid, coba refresh token
       await refreshToken();
-      return submitVote(candidateId); // Coba ulangi permintaan vote setelah token diperbarui
+      return submitVote(candidate); // Coba ulangi permintaan vote setelah token diperbarui
     }
     throw error;
   }

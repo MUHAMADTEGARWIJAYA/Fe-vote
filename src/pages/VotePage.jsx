@@ -52,7 +52,7 @@ function VotePage() {
     }
   
     // Menambahkan console.log untuk memeriksa data yang akan dikirim
-    console.log("Body:", { nim, candidateId: candidate }); // Menampilkan nim dan candidate yang dikirim
+    console.log("Body:", { nim, candidate: candidate }); // Menampilkan nim dan candidate yang dikirim
     console.log("Header:", { Authorization: `Bearer ${token}` }); // Menampilkan header Authorization
   
     setLoading(true);
@@ -60,7 +60,7 @@ function VotePage() {
     try {
       // Kirimkan nim dan candidate ke backend
       const response = await submitVote(
-        { nim, candidateId: candidate },
+        { nim, candidate: candidate },
         {
           headers: {
             Authorization: `Bearer ${token}`,
