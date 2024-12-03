@@ -40,7 +40,7 @@ function VotePage() {
     }
 
     try {
-      const response = await fetch("https://be-vote-betavercel.app/api/v1/auth/vote", {
+      const response = await fetch("https://be-vote-beta-vercel.app/api/v1/auth/vote", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
