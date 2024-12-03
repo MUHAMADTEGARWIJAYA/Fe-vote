@@ -1,5 +1,5 @@
-import { useState} from "react";
-import { submitVote } from "../api"; // Pastikan untuk mengimpor fungsi API yang benar
+import { useState } from "react";
+import { submitVote } from "../api"; // Pastikan import sesuai lokasi file
 
 function VotePage() {
   const [candidate, setCandidate] = useState(""); // Kandidat yang dipilih
@@ -7,12 +7,11 @@ function VotePage() {
   const [successMessage, setSuccessMessage] = useState(""); // Pesan sukses setelah vote
   const [loading, setLoading] = useState(false); // Status loading saat vote dikirim
 
-  // Daftar kandidat yang tersedia
   const candidates = [
     {
       id: "Candidate 1",
       name: "Bayu",
-      photo: "candidat1.jpeg", // Pastikan path sesuai dengan lokasi gambar
+      photo: "/assets/candidat1.jpeg", // Pastikan path ke gambar benar
       vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
       mission:
         "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
@@ -20,7 +19,7 @@ function VotePage() {
     {
       id: "Candidate 2",
       name: "Jane Smith",
-      photo: "candidat2.jpeg", // Pastikan path sesuai dengan lokasi gambar
+      photo: "/assets/candidat2.jpeg", // Pastikan path ke gambar benar
       vision:
         "Mendorong inovasi dan kreativitas mahasiswa melalui berbagai kegiatan yang berorientasi pada pengembangan keterampilan serta memperkuat komunitas untuk saling mendukung.",
       mission:
@@ -28,32 +27,37 @@ function VotePage() {
     },
   ];
 
-  // Fungsi untuk menangani pengiriman suara
   const handleVote = async () => {
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
 
-    setLoading(true); // Set loading menjadi true saat proses pengiriman vote dimulai
-    const token = localStorage.getItem("token"); // Mengambil token dari localStorage
+    setLoading(true);
+    const token = localStorage.getItem("token");
 
     if (!token) {
       setError("Anda belum login. Silakan login terlebih dahulu.");
-      setLoading(false); // Set loading false jika token tidak ada
+      setLoading(false);
       return;
     }
 
     try {
-      // Mengirim vote ke backend
-      const response = await submitVote(candidate, token);
+      const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage
+      if (!nim) {
+        setError("NIM tidak ditemukan. Silakan login ulang.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await submitVote({ candidate, nim, token });
       setSuccessMessage(response.message || "Voting berhasil!");
-      setError(""); // Reset pesan error jika berhasil
+      setError("");
     } catch (error) {
       setError(error.message || "Terjadi kesalahan saat mengirim suara.");
-      setSuccessMessage(""); // Reset pesan sukses jika gagal
+      setSuccessMessage("");
     } finally {
-      setLoading(false); // Set loading false setelah proses selesai
+      setLoading(false);
     }
   };
 
@@ -76,21 +80,15 @@ function VotePage() {
             <h1 className="text-2xl font-bold text-white mb-4">{`Candidate ${index + 1}`}</h1>
 
             <img
-              src={c.photo} // Pastikan path URL foto sudah sesuai
+              src={c.photo}
               alt={c.name}
               className="w-70 h-70 rounded-full mb-4 border-4 border-white shadow-lg"
             />
             <h2 className="text-xl text-white font-semibold mb-2">{c.name}</h2>
-            <p
-              className="text-sm text-white mb-2 break-words"
-              style={{ whiteSpace: "normal", wordBreak: "break-word" }}
-            >
+            <p className="text-sm text-white mb-2 break-words">
               <strong>Visi:</strong> {c.vision}
             </p>
-            <p
-              className="text-sm text-white mb-4 break-words"
-              style={{ whiteSpace: "normal", wordBreak: "break-word" }}
-            >
+            <p className="text-sm text-white mb-4 break-words">
               <strong>Misi:</strong> {c.mission}
             </p>
             <button
@@ -108,13 +106,13 @@ function VotePage() {
       <button
         onClick={handleVote}
         className="px-8 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition-colors duration-300 mb-4"
-        disabled={loading} // Menonaktifkan tombol saat sedang loading
+        disabled={loading}
       >
         {loading ? "Sending..." : "Kirim Vote"}
       </button>
 
       <button
-        onClick={() => (window.location.href = "/admin")} // Ganti dengan path yang sesuai
+        onClick={() => (window.location.href = "/admin")}
         className="px-8 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
       >
         Lihat Hasil Voting
