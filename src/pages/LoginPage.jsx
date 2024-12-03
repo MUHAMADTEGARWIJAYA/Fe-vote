@@ -13,16 +13,16 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       if (!nim) {
         setError("NIM harus diisi.");
         return;
       }
-
       const response = await loginUser(nim);
-
+  
       if (response.token) {
+        console.log("Token diterima:", response.token); // Log token untuk verifikasi
         localStorage.setItem("token", response.token);
         localStorage.setItem("nim", nim);
         navigate("/vote");
@@ -33,6 +33,7 @@ function LoginPage() {
       setError("Terjadi kesalahan: " + err.message);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#331064] to-violet-700  flex flex-col items-center justify-center">

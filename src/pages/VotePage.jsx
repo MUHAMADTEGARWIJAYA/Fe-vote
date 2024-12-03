@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { submitVote } from "../api"; // Pastikan import sesuai lokasi file
+import { useNavigate } from "react-router-dom";
 
 function VotePage() {
   const [candidate, setCandidate] = useState(""); // Kandidat yang dipilih
   const [error, setError] = useState(""); // Pesan error jika ada masalah
   const [successMessage, setSuccessMessage] = useState(""); // Pesan sukses setelah vote
   const [loading, setLoading] = useState(false); // Status loading saat vote dikirim
+  const navigate = useNavigate();
 
   const candidates = [
     {
@@ -27,28 +29,35 @@ function VotePage() {
     },
   ];
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Anda belum login. Silakan login terlebih dahulu.");
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const handleVote = async () => {
+    const token = localStorage.getItem("token");
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
 
-    setLoading(true);
-    const token = localStorage.getItem("token");
+    console.log("Body:", { candidateId: candidate });
+    console.log("Header:", { Authorization: `Bearer ${token}` });
 
-    if (!token) {
-      setError("Anda belum login. Silakan login terlebih dahulu.");
-      setLoading(false);
-      return;
-    }
+    setLoading(true);
 
     try {
-      // Kirim hanya ID kandidat dalam body dan token di header Authorization
-      const response = await submitVote({ candidateId: candidate }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await submitVote(
+        { candidateId: candidate },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setSuccessMessage(response.message || "Voting berhasil!");
       setError("");
@@ -111,7 +120,7 @@ function VotePage() {
       </button>
 
       <button
-        onClick={() => (window.location.href = "/admin")}
+        onClick={() => navigate("/admin")}
         className="px-8 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
       >
         Lihat Hasil Voting
