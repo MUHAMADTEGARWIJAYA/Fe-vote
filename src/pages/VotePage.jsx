@@ -39,29 +39,41 @@ function VotePage() {
 
   const handleVote = async () => {
     const token = localStorage.getItem("token");
+    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage
+  
+    if (!nim) {
+      setError("Anda belum login. Silakan login terlebih dahulu.");
+      return;
+    }
+  
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
-
-    console.log("Body:", { candidateId: candidate });
-    console.log("Header:", { Authorization: `Bearer ${token}` });
-
+  
+    // Menambahkan console.log untuk memeriksa data yang akan dikirim
+    console.log("Body:", { nim, candidateId: candidate }); // Menampilkan nim dan candidate yang dikirim
+    console.log("Header:", { Authorization: `Bearer ${token}` }); // Menampilkan header Authorization
+  
     setLoading(true);
-
+  
     try {
+      // Kirimkan nim dan candidate ke backend
       const response = await submitVote(
-        { candidateId: candidate },
+        { nim, candidateId: candidate },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
+  
+      console.log("Response:", response); // Menampilkan response dari backend
+  
       setSuccessMessage(response.message || "Voting berhasil!");
       setError("");
     } catch (error) {
+      console.log("Error:", error); // Menampilkan error jika ada kesalahan
       setError(error.message || "Terjadi kesalahan saat mengirim suara.");
       setSuccessMessage("");
     } finally {
