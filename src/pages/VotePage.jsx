@@ -32,31 +32,24 @@ function VotePage() {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
-  
+
     setLoading(true);
     const token = localStorage.getItem("token");
-  
+
     if (!token) {
       setError("Anda belum login. Silakan login terlebih dahulu.");
       setLoading(false);
       return;
     }
-  
+
     try {
-      const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage
-      if (!nim) {
-        setError("NIM tidak ditemukan. Silakan login ulang.");
-        setLoading(false);
-        return;
-      }
-  
-      // Mengirim hanya candidateId dan nim, token dikirim di header Authorization
-      const response = await submitVote({ candidateId: candidate, nim }, {
+      // Kirim hanya ID kandidat dalam body dan token di header Authorization
+      const response = await submitVote({ candidateId: candidate }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       setSuccessMessage(response.message || "Voting berhasil!");
       setError("");
     } catch (error) {
@@ -66,7 +59,6 @@ function VotePage() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 pb-52">
