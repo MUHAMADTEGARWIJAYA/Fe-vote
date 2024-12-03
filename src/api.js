@@ -21,7 +21,7 @@ export const loginUser = async (nim) => {
   
   export const submitVote = async (candidateId, token) => {
     try {
-      const response = await fetch("https://be-vote-beta.vercel.app/api/v1/vote", {
+      const response = await fetch("https://be-vote-beta.vercel.app/api/v1/auth/vote/vote", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
