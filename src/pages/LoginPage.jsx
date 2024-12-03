@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
-import axios from "axios";
+import { loginUser } from "../api";
 
 // Import gambar dari folder internal
 import backgroundImage from "../assets/images/background.jpg";
@@ -20,36 +20,17 @@ function LoginPage() {
         return;
       }
 
-      // Kirim permintaan login ke backend menggunakan Axios
-      const response = await axios.post(
-        "https://be-vote-beta-vercel.app/api/v1/auth/login",
-        { nim },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await loginUser(nim);
 
-      const data = response.data;
-
-      if (data.token) {
-        // Simpan token dan NIM di localStorage
-        localStorage.setItem("token", data.token);
+      if (response.token) {
+        localStorage.setItem("token", response.token);
         localStorage.setItem("nim", nim);
-
-        // Redirect ke halaman vote
         navigate("/vote");
       } else {
         setError("Login gagal. Token tidak diterima.");
       }
     } catch (err) {
-      // Tangani error dari Axios
-      if (err.response && err.response.data) {
-        setError(err.response.data.message || "Login gagal. Silakan coba lagi.");
-      } else {
-        setError("Terjadi kesalahan: " + err.message);
-      }
+      setError("Terjadi kesalahan: " + err.message);
     }
   };
 
