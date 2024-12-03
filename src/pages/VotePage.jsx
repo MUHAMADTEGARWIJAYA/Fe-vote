@@ -39,28 +39,21 @@ function VotePage() {
 
   const handleVote = async () => {
     const token = localStorage.getItem("token");
-    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage
-  
-    if (!nim) {
-      setError("Anda belum login. Silakan login terlebih dahulu.");
-      return;
-    }
-  
+    const nim = "061020202"; // Atau ambil nim dari data pengguna yang sudah login
+    
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
   
-    // Menambahkan console.log untuk memeriksa data yang akan dikirim
-    console.log("Body:", { nim, candidate: candidate }); // Menampilkan nim dan candidate yang dikirim
-    console.log("Header:", { Authorization: `Bearer ${token}` }); // Menampilkan header Authorization
+    console.log("Body:", { nim, candidate });
+    console.log("Header:", { Authorization: `Bearer ${token}` });
   
     setLoading(true);
   
     try {
-      // Kirimkan nim dan candidate ke backend
       const response = await submitVote(
-        { nim, candidate: candidate },
+        { nim, candidate },  // Kirimkan 'nim' dan 'candidate'
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,18 +61,16 @@ function VotePage() {
         }
       );
   
-      console.log("Response:", response); // Menampilkan response dari backend
-  
       setSuccessMessage(response.message || "Voting berhasil!");
       setError("");
     } catch (error) {
-      console.log("Error:", error); // Menampilkan error jika ada kesalahan
       setError(error.message || "Terjadi kesalahan saat mengirim suara.");
       setSuccessMessage("");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 pb-52">
