@@ -75,7 +75,8 @@ function VotePage() {
       setError(""); // Reset error message
     } catch (error) {
       // Tampilkan pesan error jika ada masalah
-      setError(error.message || "Terjadi kesalahan saat mengirim suara.");
+      const errorMessage = error.response?.data?.message || error.message || "Terjadi kesalahan saat mengirim suara.";
+      setError(errorMessage); // Tampilkan pesan error yang diterima dari backend
       setSuccessMessage(""); // Reset success message
     } finally {
       // Set loading ke false setelah request selesai
