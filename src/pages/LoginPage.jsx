@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
 import { loginUser } from "../api";
+import { ClipLoader } from "react-spinners"; // Import spinner component
 
 // Import gambar dari folder internal
 import backgroundImage from "../assets/images/background.jpg";
@@ -9,20 +10,23 @@ import backgroundImage from "../assets/images/background.jpg";
 function LoginPage() {
   const [nim, setNim] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // State to track loading
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
   
+    if (!nim) {
+      setError("NIM harus diisi.");
+      return;
+    }
+
     try {
-      if (!nim) {
-        setError("NIM harus diisi.");
-        return;
-      }
+      setLoading(true); // Set loading to true when the login starts
       const response = await loginUser(nim);
   
       if (response.token) {
-        console.log("Token diterima:", response.token); // Log token untuk verifikasi
+        // console.log("Token diterima:", response.token); // Log token untuk verifikasi
         localStorage.setItem("token", response.token);
         localStorage.setItem("nim", nim);
         navigate("/vote");
@@ -31,12 +35,13 @@ function LoginPage() {
       }
     } catch (err) {
       setError("Terjadi kesalahan: " + err.message);
+    } finally {
+      setLoading(false); // Set loading to false when the request is complete
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#331064] to-violet-700  flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-[#331064] to-violet-700 flex flex-col items-center justify-center">
       {/* Background Image Section */}
       <div
         className="text-center w-96 h-64 pt-10 rounded-t-xl shadow-2xl bg-cover bg-center text-white"
@@ -68,11 +73,20 @@ function LoginPage() {
               />
             </label>
           </div>
+
+          {/* Show spinner if loading */}
           <button
             type="submit"
             className="w-full bg-violet-700 text-white py-2 rounded-lg hover:bg-[#331064] transition"
+            disabled={loading} // Disable button while loading
           >
-            Login
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <ClipLoader size={20} color={"#ffffff"} loading={loading} />
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
