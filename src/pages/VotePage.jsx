@@ -23,7 +23,7 @@ function VotePage() {
       name: "Maulana Ikhsan Afrizalu",
       photo: "candidat2.jpeg",
       vision: "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi.",
-      mission: "1. Mengutamakan kolektivisme. 2. Mendorong kemandirian akademik dan organisasi.",
+      mission: "1. Mengutamakan Kolektivisme dalam Kepemimpinan : Mengelola himpunan secara demokratis dengan melibatkan seluruh anggota dalam pengambilan keputusan, sehingga organisasi menjadi milik bersama, bukan segelintir orang orang penting saja. 2. Mendorong Kemandirian Akademik dan Organisasi : Membangun himpunan yang mandiri secara intelektual dan organisatoris, sehingga tidak bergantung pada kekuatan eksternal yang dapat membatasi kebebasan berpikir dan bertindak",
     },
   ];
 
