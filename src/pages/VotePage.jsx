@@ -7,25 +7,23 @@ function VotePage() {
   const [error, setError] = useState(""); // Pesan error jika ada masalah
   const [successMessage, setSuccessMessage] = useState(""); // Pesan sukses setelah vote
   const [loading, setLoading] = useState(false); // Status loading saat vote dikirim
+  const [isModalOpen, setIsModalOpen] = useState(false); // Kontrol modal popup
   const navigate = useNavigate();
 
   const candidates = [
     {
       id: "Candidate 1",
       name: "Bayu Widyadi Nugroho",
-      photo: "candidat1.jpeg", // Pastikan path ke gambar benar
+      photo: "candidat1.jpeg",
       vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
-      mission:
-        "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
+      mission: "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
     },
     {
       id: "Candidate 2",
       name: "Maulana Ikhsan Afrizalu",
-      photo: "candidat2.jpeg", // Pastikan path ke gambar benar
-      vision:
-        "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi untuk membangun kemajuan bersama, serta menciptakan lingkungan akademik yang adil dan berorientasi pada kebersamaan.",
-      mission:
-        "1. Mengutamakan Kolektivisme dalam Kepemimpinan : Mengelola himpunan secara demokratis dengan melibatkan seluruh anggota dalam pengambilan keputusan, sehingga organisasi menjadi milik bersama, bukan segelintir orang orang penting saja. 2. Mendorong Kemandirian Akademik dan Organisasi : Membangun himpunan yang mandiri secara intelektual dan organisatoris, sehingga tidak bergantung pada kekuatan eksternal yang dapat membatasi kebebasan berpikir dan bertindak."
+      photo: "candidat2.jpeg",
+      vision: "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi.",
+      mission: "1. Mengutamakan kolektivisme. 2. Mendorong kemandirian akademik dan organisasi.",
     },
   ];
 
@@ -37,62 +35,55 @@ function VotePage() {
     }
   }, [navigate]);
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   const handleVote = async () => {
     const token = localStorage.getItem("token");
-    const nim = localStorage.getItem("nim"); // Ambil NIM dari localStorage (atau dari sumber lain, seperti context atau state)
+    const nim = localStorage.getItem("nim");
   
-    // Validasi jika NIM tidak ditemukan
     if (!nim) {
       setError("NIM tidak ditemukan. Silakan login ulang.");
       return;
     }
   
-    // Validasi jika kandidat belum dipilih
     if (!candidate) {
       setError("Silakan pilih kandidat sebelum mengirim suara.");
       return;
     }
   
-    // Debugging: log body dan header sebelum request
-    // console.log("Body:", { nim, candidate });
-    // console.log("Header:", { Authorization: `Bearer ${token}` });
-  
     setLoading(true);
   
     try {
-      // Kirim request vote ke backend
       const response = await submitVote(
-        { nim, candidate }, // Kirimkan nim dan candidate dalam body request
+        { nim, candidate },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Sertakan token untuk otorisasi
+            Authorization: `Bearer ${token}`,
           },
         }
       );
   
-      // Tampilkan pesan sukses jika voting berhasil
       setSuccessMessage(response.message || "Voting berhasil!");
-      setError(""); // Reset error message
+      setError("");
     } catch (error) {
-      // Tampilkan pesan error jika ada masalah
       const errorMessage = error.response?.data?.message || error.message || "Terjadi kesalahan saat mengirim suara.";
-      setError(errorMessage); // Tampilkan pesan error yang diterima dari backend
-      setSuccessMessage(""); // Reset success message
+      setError(errorMessage);
+      setSuccessMessage("");
     } finally {
-      // Set loading ke false setelah request selesai
       setLoading(false);
     }
   };
+
   const [images, setImages] = useState({});
 
   useEffect(() => {
-    // Menggunakan import.meta.glob untuk memuat semua gambar dalam folder assets/imgs
     const loadImages = async () => {
       const importedImages = import.meta.glob('../assets/images/*.{png,jpg,jpeg}');
       const imageEntries = await Promise.all(
         Object.entries(importedImages).map(async ([path, importFunc]) => {
           const module = await importFunc();
-          const fileName = path.split('/').pop(); // Dapatkan nama file saja
+          const fileName = path.split('/').pop();
           return [fileName, module.default];
         })
       );
@@ -100,7 +91,7 @@ function VotePage() {
     };
 
     loadImages();
-  }, []); 
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 pb-52">
@@ -145,7 +136,7 @@ function VotePage() {
       </div>
 
       <button
-        onClick={handleVote}
+        onClick={openModal}
         className="px-8 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition-colors duration-300 mb-4"
         disabled={loading}
       >
@@ -161,6 +152,33 @@ function VotePage() {
 
       {successMessage && <div className="mt-4 text-green-600">{successMessage}</div>}
       {error && <div className="mt-4 text-red-600">{error}</div>}
+
+      {/* Modal Konfirmasi */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Konfirmasi Voting</h2>
+            <p className="mb-6">Apakah Anda yakin ingin memberikan suara untuk kandidat ini?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  closeModal();
+                  handleVote();
+                }}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+              >
+                Yakin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
