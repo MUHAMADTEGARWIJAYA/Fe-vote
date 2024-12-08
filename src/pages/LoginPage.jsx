@@ -32,7 +32,7 @@ function LoginPage() {
   useEffect(() => {
     const fetchLoginWindow = async () => {
       try {
-        const response = await fetch("/api/v1/login-window");
+        const response = await fetch("/api/v1/auth/login-window");
         const data = await response.json();
         setLoginWindow(data);
       } catch (err) {
