@@ -25,7 +25,6 @@ function LoginPage() {
   const [countdown, setCountdown] = useState(null);
   const [loginWindow, setLoginWindow] = useState({});
   const [isPopupOpen, setIsPopupOpen] = useState(true); // Popup kontrol
-  const [isLoginAllowed, setIsLoginAllowed] = useState(false); // Mengontrol login aktif
   const navigate = useNavigate();
 
   // Ambil waktu login dari backend
@@ -44,12 +43,10 @@ function LoginPage() {
 
     const countdownInterval = setInterval(() => {
       if (loginWindow.start) {
-        const startTime = new Date(loginWindow.start).getTime();
-        const countdownTime = calculateCountdown(startTime);
+        const countdownTime = calculateCountdown(new Date(loginWindow.start).getTime());
         setCountdown(countdownTime);
 
         if (!countdownTime) {
-          setIsLoginAllowed(true); // Aktifkan login saat waktu tiba
           setIsPopupOpen(false); // Tutup popup jika waktu selesai
         }
       }
@@ -104,12 +101,6 @@ function LoginPage() {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-bold text-center mb-4">Login Dimulai Dalam:</h2>
             <p className="text-center text-2xl">{countdown}</p>
-            <button
-              onClick={() => setIsPopupOpen(false)}
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-            >
-              Tutup
-            </button>
           </div>
         </div>
       )}
@@ -134,12 +125,8 @@ function LoginPage() {
           {/* Show spinner if loading */}
           <button
             type="submit"
-            className={`w-full py-2 rounded-lg ${
-              isLoginAllowed
-                ? "bg-violet-700 text-white hover:bg-[#331064] transition"
-                : "bg-gray-400 text-gray-700 cursor-not-allowed"
-            }`}
-            disabled={!isLoginAllowed || loading}
+            className="w-full bg-violet-700 text-white py-2 rounded-lg hover:bg-[#331064] transition"
+            disabled={loading}
           >
             {loading ? (
               <div className="flex justify-center items-center">

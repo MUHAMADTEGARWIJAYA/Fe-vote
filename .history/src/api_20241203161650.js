@@ -76,11 +76,7 @@ api.interceptors.response.use(
   (response) => response, // Jika response sukses, lanjutkan
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401) {
-      // Jika status 401 (Unauthorized), buka login window
-      openLoginWindow();
-      return Promise.reject(error);
-    }
+
     // Jika token expired (misalnya status 403), coba refresh token
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -97,18 +93,5 @@ api.interceptors.response.use(
     return Promise.reject(error); // Untuk error lainnya, tolak promise
   }
 );
-
-
-// Fungsi untuk membuka jendela login
-export const openLoginWindow = () => {
-  try {
-    // URL endpoint untuk halaman login
-    const loginUrl = "/api/v1/login-window";
-    window.open(loginUrl, "_blank", "width=500,height=600"); // Atur ukuran popup
-  } catch (error) {
-    console.error("Failed to open login window:", error.message);
-    throw error;
-  }
-};
 
 export default api;
