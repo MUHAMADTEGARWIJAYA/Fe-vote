@@ -5,33 +5,58 @@ import { loginUser } from "../api";
 import { ClipLoader } from "react-spinners";
 import backgroundImage from "../assets/images/background.jpg";
 
+// Fungsi untuk menghitung mundur
+const calculateCountdown = (startTime) => {
+  const now = new Date().getTime();
+  const distance = startTime - now;
+  if (distance <= 0) return null;
+
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  return `${hours > 0 ? `${hours}h ` : ""}${minutes}m ${seconds}s`;
+};
+
 function LoginPage() {
   const [nim, setNim] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // Timer untuk 5 menit (300 detik)
+  const [countdown, setCountdown] = useState(null);
+  const [loginWindow, setLoginWindow] = useState({});
+  const [isPopupOpen, setIsPopupOpen] = useState(true); // Popup kontrol
   const navigate = useNavigate();
 
-  // Timer countdown
+  // Ambil waktu login dari backend
   useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-    return () => clearInterval(timer); // Bersihkan interval
-  }, [timeLeft]);
+    const fetchLoginWindow = async () => {
+      try {
+        const response = await fetch("/api/v1/login-window");
+        const data = await response.json();
+        setLoginWindow(data);
+      } catch (err) {
+        console.error("Failed to fetch login window:", err);
+      }
+    };
 
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
+    fetchLoginWindow();
+
+    const countdownInterval = setInterval(() => {
+      if (loginWindow.start) {
+        const countdownTime = calculateCountdown(new Date(loginWindow.start).getTime());
+        setCountdown(countdownTime);
+
+        if (!countdownTime) {
+          setIsPopupOpen(false); // Tutup popup jika waktu selesai
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [loginWindow.start]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (timeLeft <= 0) {
-      setError("Waktu login telah habis!");
-      return;
-    }
 
     if (!nim) {
       setError("NIM harus diisi.");
@@ -56,24 +81,12 @@ function LoginPage() {
     }
   };
 
-  if (timeLeft <= 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#331064] to-violet-700 text-white">
-        <h1 className="text-2xl font-bold text-center">
-          Waktu Login Telah Habis! <br />
-          Silakan hubungi admin untuk perpanjangan waktu.
-        </h1>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#331064] to-violet-700 flex flex-col items-center justify-center">
+      {/* Background Image Section */}
       <div
         className="text-center w-96 h-64 pt-10 rounded-t-xl shadow-2xl bg-cover bg-center text-white"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-        }}
+        style={{ backgroundImage: `url(${backgroundImage})` }}
       >
         <h1 className="text-3xl font-bold">VOTE KETUA HIMAIF</h1>
         <h2 className="font-bold">Periode 2024-2025</h2>
@@ -82,12 +95,19 @@ function LoginPage() {
         </p>
       </div>
 
+      {/* Popup Countdown */}
+      {isPopupOpen && countdown && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold text-center mb-4">Login Dimulai Dalam:</h2>
+            <p className="text-center text-2xl">{countdown}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Login Form */}
       <div className="bg-white h-64 justify-center items-center p-6 rounded-sm shadow-2xl w-96">
         <h2 className="text-lg font-semibold text-center mb-4">USER LOGIN</h2>
-        {/* Tampilkan timer */}
-        <p className="text-center text-red-600 font-semibold mb-4">
-          Sisa waktu login: {formatTime(timeLeft)}
-        </p>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="flex items-center bg-gray-100 px-3 py-2 rounded-lg shadow-inner">
@@ -101,6 +121,8 @@ function LoginPage() {
               />
             </label>
           </div>
+
+          {/* Show spinner if loading */}
           <button
             type="submit"
             className="w-full bg-violet-700 text-white py-2 rounded-lg hover:bg-[#331064] transition"
