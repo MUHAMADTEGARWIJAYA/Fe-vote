@@ -103,7 +103,7 @@ api.interceptors.response.use(
 export const openLoginWindow = () => {
   try {
     // URL endpoint untuk halaman login
-    const loginUrl = "/api/v1/login-window";
+    const loginUrl = "/api/v1/auth/login-window";
     window.open(loginUrl, "_blank", "width=500,height=600"); // Atur ukuran popup
   } catch (error) {
     console.error("Failed to open login window:", error.message);
