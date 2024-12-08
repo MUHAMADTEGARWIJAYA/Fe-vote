@@ -11,19 +11,19 @@ function VotePage() {
   const navigate = useNavigate();
 
   const candidates = [
+   
     {
       id: "Candidate 1",
-      name: "Bayu Widyadi Nugroho",
-      photo: "candidat1.jpeg",
-      vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
-      mission: "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
-    },
-    {
-      id: "Candidate 2",
       name: "Maulana Ikhsan Afrizalu",
       photo: "candidat2.jpeg",
       vision: "Mewujudkan himpunan mahasiswa informatika sebagai komunitas yang inklusif, inovatif, dan berdedikasi dalam memanfaatkan teknologi.",
       mission: "1. Mengutamakan Kolektivisme dalam Kepemimpinan : Mengelola himpunan secara demokratis dengan melibatkan seluruh anggota dalam pengambilan keputusan, sehingga organisasi menjadi milik bersama, bukan segelintir orang orang penting saja. 2. Mendorong Kemandirian Akademik dan Organisasi : Membangun himpunan yang mandiri secara intelektual dan organisatoris, sehingga tidak bergantung pada kekuatan eksternal yang dapat membatasi kebebasan berpikir dan bertindak",
+    }, {
+      id: "Candidate 2",
+      name: "Bayu Widyadi Nugroho",
+      photo: "candidat1.jpeg",
+      vision: "Himaif sebagai 'keluarga' yang dapat menyatukan seluruh karakter mahasiswa informatika.",
+      mission: "1. Melanjutkan dan menyempurnakan proker yang sudah ada namun belum berjalan dengan baik. 2. Mengelola kepengurusan dan keanggotaan agar lebih aktif lagi dalam setiap kegiatan himaif.",
     },
   ];
 
@@ -143,12 +143,7 @@ function VotePage() {
         {loading ? "Sending..." : "Kirim Vote"}
       </button>
 
-      <button
-        onClick={() => navigate("/admin")}
-        className="px-8 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
-      >
-        Lihat Hasil Voting
-      </button>
+      
 
       {successMessage && <div className="mt-4 text-green-600">{successMessage}</div>}
       {error && <div className="mt-4 text-red-600">{error}</div>}
