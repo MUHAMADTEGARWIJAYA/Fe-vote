@@ -14,7 +14,7 @@ api.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("t
 // Fungsi untuk melakukan login dan menyimpan token
 export const loginUser = async (nim) => {
   try {
-    const response = await api.post("/api/v1/auth/login", { nim });
+    const response = await axios.post("/api/v1/auth/login", { nim });
 
     // Jika login berhasil dan token ada, simpan token ke localStorage
     if (response.data.token) {
